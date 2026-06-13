@@ -3,6 +3,7 @@ from .base import *
 from .components.core import get_core_config
 from .components.database import get_database_config
 from .components.rest_framework import get_jwt_auth_config  # 🌟 Import the new auth component
+from .components.cache import get_cache_config
 
 env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
@@ -10,7 +11,8 @@ environ.Env.read_env(BASE_DIR / ".env")
 # Fetch Configurations
 core_component = get_core_config(env)
 db_component = get_database_config(env)
-auth_component = get_jwt_auth_config(env)  # 🌟 Fetch auth dictionary
+auth_component = get_jwt_auth_config(env)
+cache_component = get_cache_config(env)
 
 # Core Mappings
 SECRET_KEY = core_component["SECRET_KEY"]
@@ -23,6 +25,10 @@ LANGUAGE_CODE = core_component.get("LANGUAGE_CODE", "en-us")
 
 # Complex Structs Mappings
 DATABASES = db_component["DATABASES"]
+
+CACHES = cache_component["CACHES"]
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "session"
 
 # Security & Docs Component Mappings
 REST_FRAMEWORK = auth_component["REST_FRAMEWORK"]
