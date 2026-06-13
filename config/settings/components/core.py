@@ -9,4 +9,6 @@ def get_core_config(env):
         "ALLOWED_HOSTS": env.list("ALLOWED_HOSTS", default=["yourdomain.com"]),
         "CSRF_TRUSTED_ORIGINS": env.list("CSRF_TRUSTED_ORIGINS", default=[]),
         "CORS_ALLOWED_ORIGINS": env.list("CORS_ALLOWED_ORIGINS", default=[]),
+        "TIME_ZONE": env.str("TIME_ZONE", default="UTC"),
+        "LANGUAGE_CODE": env.str("LANGUAGE_CODE", default="en-us")
     }
