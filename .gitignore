@@ -1,0 +1,41 @@
+# Docker / Containers
+.docker/
+*.local
+docker-compose.override.yml
+
+# Databases and Local Data Volumes
+# (Keeps your persistent Postgres volumes local)
+postgres_data/
+*.sql
+*.sqlite3
+
+# Environment Variables & Secrets
+# (Never push credentials like DB_PASSWORD to GitHub)
+.env
+.env.[a-zA-Z]*
+!.env.example
+
+# Python Caches & Compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Virtual Environments (Local testing)
+venv/
+env/
+.venv/
+ENV/
+
+# Django Media & Static Directories
+# (Keeps user-uploaded files out of git)
+/media/
+/static/
+/staticfiles/
+
+# IDEs and System files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

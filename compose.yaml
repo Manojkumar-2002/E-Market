@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:18-alpine
+    restart: always
+    # Named volume ensures data persists when the database container stops
+    volumes:
+      - postgres_data:/var/lib/postgresql/
+    # Loads database environment setups dynamically from your local .env file
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    # Runs the Django development server bound to 0.0.0.0 for external routing
+    command: python manage.py runserver 0.0.0.0:8000
+    restart: always
+    # Bind-mounts your project workspace so file changes refresh live
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    # Loads all remaining backend secrets and runtime flags into Django
+    env_file:
+      - .env
+    # Blocks Django from executing until the PostgreSQL service container starts
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
