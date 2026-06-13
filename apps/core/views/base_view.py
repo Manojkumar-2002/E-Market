@@ -1,13 +1,11 @@
 from rest_framework import viewsets, status
 from ..utils.response_handler import ResponseHandler
 from ..utils.serializer_handler import SerializerErrorHandler
+from ..pagination import CustomPageNumberPagination
 
 
 class BaseAPIViewSet(viewsets.ModelViewSet):
-    """
-    Universal Base: Only handles HTTP responses and error formatting.
-    Override perform_create/perform_update/perform_destroy in subclasses for custom logic.
-    """
+    pagination_class = CustomPageNumberPagination
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -44,25 +42,33 @@ class BaseAPIViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         self.perform_destroy(instance)
         return ResponseHandler.success_response(message="Deleted successfully")
-
+    
     def list(self, request, *args, **kwargs):
+        """
+        Paginator-agnostic list view. Handles both Cursor and PageNumber
+        structures dynamically using dictionary envelopes.
+        """
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
+        
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            pagination_data = {
-                'count': self.paginator.page.paginator.count,
-                'page': self.paginator.page.number,
-                'total_pages': self.paginator.page.paginator.num_pages,
-            }
+            
+            # Delegate metadata payload creation straight to the custom paginator
+            response_envelope = self.paginator.get_paginated_response(serializer.data, as_dict=True)
+            
             return ResponseHandler.success_response(
-                "Fetched successfully",
-                data=serializer.data,
-                pagination=pagination_data
+                message="Fetched successfully",
+                data=response_envelope["data"],
+                pagination=response_envelope["pagination"]
             )
 
+        # 👑 THE FIX: Cleanly serialize and return the unpaginated fallback envelope
         serializer = self.get_serializer(queryset, many=True)
-        return ResponseHandler.success_response("Fetched successfully", data=serializer.data)
+        return ResponseHandler.success_response(
+            message="Fetched successfully",
+            data=serializer.data
+        )
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

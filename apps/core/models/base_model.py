@@ -74,18 +74,32 @@ class AuditModel(BaseModel):
     class Meta:
         abstract = True
 
-    def delete(self, *args, **kwargs):
-        """Perform a soft delete by flipping flags instead of running an SQL DELETE."""
+    def delete(self, user=None, *args, **kwargs):
+        """Perform a soft delete by flipping flags and tracking the user responsible."""
         self.is_deleted = True
         self.deleted_at = timezone.now()
-        self.save(update_fields=['is_deleted', 'deleted_at'])
+        
+        update_fields = ['is_deleted', 'deleted_at']
+        
+        if user and user.is_authenticated:
+            self.updated_by = user
+            update_fields.append('updated_by')
+            
+        self.save(update_fields=update_fields)
 
-    def restore(self):
-        """Brings a soft-deleted database record back to life."""
+    def restore(self, user=None):
+        """Brings a soft-deleted database record back to life and logs who restored it."""
         self.is_deleted = False
         self.deleted_at = None
-        self.save(update_fields=['is_deleted', 'deleted_at'])
-
+        
+        update_fields = ['is_deleted', 'deleted_at']
+        
+        if user and user.is_authenticated:
+            self.updated_by = user
+            update_fields.append('updated_by')
+            
+        self.save(update_fields=update_fields)
+        
     def hard_delete(self, *args, **kwargs):
         """Permanently purges the row from physical disk storage."""
         super().delete(*args, **kwargs)

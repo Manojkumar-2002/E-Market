@@ -17,10 +17,12 @@ CORE_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
 ]
 
 THIRD_PARTY_APPS = [
     "rest_framework",
+    "django_filters",
     "drf_spectacular",
     "rest_framework_simplejwt.token_blacklist",
 ]
@@ -28,6 +30,7 @@ THIRD_PARTY_APPS = [
 PROJECT_APPS = [
     "apps.core",
     "apps.users",
+    "apps.products",
     # "apps.carts",
     # "apps.orders",
     # "apps.payments",
