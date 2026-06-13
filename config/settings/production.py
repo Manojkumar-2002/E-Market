@@ -1,26 +1,30 @@
-import os
 import environ
 from .base import *
 from .components.core import get_core_config
 from .components.database import get_database_config
+from .components.rest_framework import get_jwt_auth_config  # 🌟 Import the new auth component
 
-# Initialize django-environ
 env = environ.Env()
+environ.Env.read_env(BASE_DIR / ".env")
 
-# Read the .env file from the project root
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
-
-# 1. Fetch Core & Database Dict Components
+# Fetch Configurations
 core_component = get_core_config(env)
 db_component = get_database_config(env)
+auth_component = get_jwt_auth_config(env)  # 🌟 Fetch auth dictionary
 
-# 2. Map Constants Directly to Global Namespace
+# Core Mappings
 SECRET_KEY = core_component["SECRET_KEY"]
 DEBUG = core_component["DEBUG"]
 ALLOWED_HOSTS = core_component["ALLOWED_HOSTS"]
 CSRF_TRUSTED_ORIGINS = core_component["CSRF_TRUSTED_ORIGINS"]
 CORS_ALLOWED_ORIGINS = core_component["CORS_ALLOWED_ORIGINS"]
+TIME_ZONE = core_component.get("TIME_ZONE", "UTC")
+LANGUAGE_CODE = core_component.get("LANGUAGE_CODE", "en-us")
 
-
-# 5. Extract Complex Dictionary Structs
+# Complex Structs Mappings
 DATABASES = db_component["DATABASES"]
+
+# Security & Docs Component Mappings
+REST_FRAMEWORK = auth_component["REST_FRAMEWORK"]
+SIMPLE_JWT = auth_component["SIMPLE_JWT"]
+SPECTACULAR_SETTINGS = auth_component["SPECTACULAR_SETTINGS"]

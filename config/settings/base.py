@@ -5,8 +5,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"
@@ -21,17 +19,27 @@ CORE_APPS = [
     "django.contrib.staticfiles",
 ]
 
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "drf_spectacular",
+    "rest_framework_simplejwt.token_blacklist",
+]
+
 PROJECT_APPS = [
-    # "apps.core",
-    # "apps.users",
+    "apps.core",
+    "apps.users",
     # "apps.carts",
     # "apps.orders",
     # "apps.payments",
 ]
 
-INSTALLED_APPS = CORE_APPS + PROJECT_APPS
+INSTALLED_APPS = CORE_APPS + THIRD_PARTY_APPS + PROJECT_APPS
+
+# Custom Authentication Configuration
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
+    "apps.core.exceptions.global_exception_middleware.GlobalExceptionMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -40,6 +48,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+
+
 
 TEMPLATES = [
     {
