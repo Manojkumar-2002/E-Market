@@ -110,7 +110,7 @@ class CheckoutView(APIView):
                 # 👑 THE DELAYED TRIGGER: Routed directly to our fast-lane checkout worker queue
                 transaction.on_commit(lambda: inspect_order_stock_ttl.apply_async(
                     args=[str(order.id)], 
-                    countdown=60  # Exactly 5 minutes delay (300 seconds)
+                    countdown=600  # Exactly 5 minutes delay (300 seconds)
                 ))
 
             # 👑 SUCCESS PATH: Standardized via ResponseHandler

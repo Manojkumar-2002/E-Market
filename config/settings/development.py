@@ -5,6 +5,7 @@ from .components.database import get_database_config
 from .components.rest_framework import get_jwt_auth_config
 from .components.cache import get_cache_config
 from .components.celery_config import get_celery_config
+from .components.payments import get_payment_config
 
 env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
@@ -15,6 +16,8 @@ db_component = get_database_config(env)
 auth_component = get_jwt_auth_config(env)
 cache_component = get_cache_config(env)
 celery_component = get_celery_config(env)
+payment_component = get_payment_config(env)
+
 
 # Core Mappings
 SECRET_KEY = core_component["SECRET_KEY"]
@@ -39,9 +42,14 @@ SPECTACULAR_SETTINGS = auth_component["SPECTACULAR_SETTINGS"]
 
 CELERY_BROKER_URL = celery_component["CELERY_BROKER_URL"]
 CELERY_RESULT_BACKEND = celery_component["CELERY_RESULT_BACKEND"]
+CELERY_TASK_IGNORE_RESULT = celery_component["CELERY_TASK_IGNORE_RESULT"]
+CELERY_TASK_STORE_ERRORS_EVEN_IF_IGNORED = celery_component["CELERY_TASK_STORE_ERRORS_EVEN_IF_IGNORED"] 
 CELERY_TASK_ACKS_LATE = celery_component["CELERY_TASK_ACKS_LATE"]
 CELERY_TASK_REJECT_ON_WORKER_LOST = celery_component["CELERY_TASK_REJECT_ON_WORKER_LOST"]
 CELERY_RESULT_EXPIRES = celery_component["CELERY_RESULT_EXPIRES"]
 CELERY_TIMEZONE = celery_component["CELERY_TIMEZONE"]
 CELERY_ENABLE_UTC = celery_component["CELERY_ENABLE_UTC"]
+CELERY_QUEUES = celery_component["CELERY_QUEUES"] 
 CELERY_TASK_ROUTES = celery_component["CELERY_TASK_ROUTES"]
+
+PAYMENTS = payment_component["PAYMENTS"]
