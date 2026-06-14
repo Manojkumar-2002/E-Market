@@ -97,6 +97,17 @@ class LoginSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
     
+    def get_user(self, obj) -> dict:
+        """
+        Dynamically serialize the User entity stashed inside validation attrs dict components.
+        """
+        # When evaluating raw non-model views or serializing out from an internal .data mapping 
+        # of a vanilla Serializer class, 'obj' will be the returned validation dictionary.
+        user = obj.get('user') if isinstance(obj, dict) else getattr(obj, 'user', None)
+        if not user:
+            return None
+        return UserSerializer(user, context=self.context).data
+    
 
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField(required=True, help_text="The refresh token to blacklist.")
