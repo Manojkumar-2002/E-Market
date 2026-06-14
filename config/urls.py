@@ -7,6 +7,7 @@ urlpatterns = [
     path('api/v1/auth/', include('apps.users.urls')),
     path('api/v1/products/', include('apps.products.urls')),
     path('api/v1/carts/', include('apps.carts.urls')),
+    path('api/v1/orders/', include('apps.orders.urls')),
     # Swagger API Schema Engine paths
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     # This renders the actual interactive web dashboard page

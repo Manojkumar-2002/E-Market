@@ -83,6 +83,7 @@ class CartItem(AuditModel):
                 name="unique_cart_variant_line_item"
             )
         ]
+       
 
     def __str__(self):
         return f"{self.quantity}x {self.variant.sku} inside Cart {self.cart_id}"

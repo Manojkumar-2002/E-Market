@@ -2,8 +2,9 @@ import environ
 from .base import *
 from .components.core import get_core_config
 from .components.database import get_database_config
-from .components.rest_framework import get_jwt_auth_config  # 🌟 Import the new auth component
+from .components.rest_framework import get_jwt_auth_config
 from .components.cache import get_cache_config
+from .components.celery_config import get_celery_config
 
 env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
@@ -13,6 +14,7 @@ core_component = get_core_config(env)
 db_component = get_database_config(env)
 auth_component = get_jwt_auth_config(env)
 cache_component = get_cache_config(env)
+celery_component = get_celery_config(env)
 
 # Core Mappings
 SECRET_KEY = core_component["SECRET_KEY"]
@@ -34,3 +36,12 @@ SESSION_CACHE_ALIAS = "session"
 REST_FRAMEWORK = auth_component["REST_FRAMEWORK"]
 SIMPLE_JWT = auth_component["SIMPLE_JWT"]
 SPECTACULAR_SETTINGS = auth_component["SPECTACULAR_SETTINGS"]
+
+CELERY_BROKER_URL = celery_component["CELERY_BROKER_URL"]
+CELERY_RESULT_BACKEND = celery_component["CELERY_RESULT_BACKEND"]
+CELERY_TASK_ACKS_LATE = celery_component["CELERY_TASK_ACKS_LATE"]
+CELERY_TASK_REJECT_ON_WORKER_LOST = celery_component["CELERY_TASK_REJECT_ON_WORKER_LOST"]
+CELERY_RESULT_EXPIRES = celery_component["CELERY_RESULT_EXPIRES"]
+CELERY_TIMEZONE = celery_component["CELERY_TIMEZONE"]
+CELERY_ENABLE_UTC = celery_component["CELERY_ENABLE_UTC"]
+CELERY_TASK_ROUTES = celery_component["CELERY_TASK_ROUTES"]
