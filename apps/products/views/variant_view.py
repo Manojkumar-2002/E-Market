@@ -4,7 +4,7 @@ from apps.core.views.base_view import BaseAPIViewSet
 from apps.core.utils.cache_manager import CacheManager
 
 from apps.products.models import ProductVariant
-from apps.products.serializers.product_serializer import ProductVariantSerializer
+from apps.products.serializers import ProductVariantSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +18,8 @@ class ProductVariantViewSet(BaseAPIViewSet):
     """
     queryset = ProductVariant.objects.filter(is_active=True, is_deleted=False).select_related("product")
     serializer_class = ProductVariantSerializer
+
+
 
     def get_permissions(self):
         """

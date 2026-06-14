@@ -1,1 +1,3 @@
-from .product_serializer import ProductListSerializer, ProductDetailSerializer, ProductVariantSerializer
+from .product_serializer import ProductListSerializer, ProductDetailSerializer
+from .variant_serializer import ProductVariantSerializer
+from .inventory_serializer import InventoryLogSerializer
