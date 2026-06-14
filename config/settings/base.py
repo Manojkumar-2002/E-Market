@@ -31,7 +31,7 @@ PROJECT_APPS = [
     "apps.core",
     "apps.users",
     "apps.products",
-    # "apps.carts",
+    "apps.carts",
     # "apps.orders",
     # "apps.payments",
 ]
