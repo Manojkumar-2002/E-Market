@@ -1,16 +1,14 @@
-# Inside apps/products/serializers/product_serializer.py
-from ..models import Product, ProductVariant
-from rest_framework import serializers
 from decimal import Decimal
+from rest_framework import serializers
+from apps.products.models import Product, ProductVariant
+
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
     product = serializers.PrimaryKeyRelatedField(
-        queryset=Product.objects.filter(is_deleted=False),
-        write_only=True
+        queryset=Product.objects.filter(is_deleted=False)
     )
     
-    # 💰 THE FIX: Added fallback default while keeping strict null rejection
     price = serializers.DecimalField(
         max_digits=10, 
         decimal_places=2, 
@@ -37,3 +35,15 @@ class ProductVariantSerializer(serializers.ModelSerializer):
             "color",
             "is_active"
         ]
+
+    def create(self, validated_data):
+        """Handles POST: Initializes the variant with whatever stock is passed."""
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        """Handles PUT/PATCH: Explicitly drops stock_quantity so it cannot be altered."""
+        # 👑 THE CLEAN POP: If it's in the incoming payload, vaporize it right here
+        validated_data.pop('stock_quantity', None)
+
+        return super().update(instance, validated_data)
+    

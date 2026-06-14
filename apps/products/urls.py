@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
-from apps.products.views import CategoryViewSet, ProductViewSet, ProductVariantViewSet
+from apps.products.views import CategoryViewSet, ProductViewSet, ProductVariantViewSet, InventoryLogViewSet
 
 app_name = "products"
 
@@ -11,6 +11,7 @@ router = SimpleRouter()
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'items', ProductViewSet, basename='product')
 router.register(r'variants', ProductVariantViewSet, basename='variant')
+router.register(r'inventory-logs', InventoryLogViewSet, basename='inventory-log')
 
 urlpatterns = [
     path('', include(router.urls)),

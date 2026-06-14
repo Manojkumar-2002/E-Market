@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from apps.products.models import Product, Category, ProductVariant
 from django.contrib.auth import get_user_model
+from .variant_serializer import ProductVariantSerializer
 
 User = get_user_model()
 
@@ -63,19 +64,6 @@ class CategorySerializer(serializers.ModelSerializer):
         return attrs
 
 
-# 1. ⚡ NEW: Variant Serializer to stream physical inventory data
-class ProductVariantSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductVariant
-        fields = [
-            "id",
-            "sku",
-            "price",
-            "stock_quantity",
-            "size",
-            "color",
-            "is_active"
-        ]
 
 
 # 2. 🚀 LIGHTWEIGHT LISTING: Stays clean, simple, and perfectly cache-friendly

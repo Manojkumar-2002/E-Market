@@ -129,8 +129,10 @@ class CartItemDetailAPIView(BaseCartAPIView):
         cart = self._get_or_create_cart(request)
         cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
         
-        cart_item.delete()
+        # 👑 THE FIX: Purge the row permanently from physical disk storage
+        cart_item.hard_delete()
+        
         return ResponseHandler.success_response(
-            message="Item removed from cart successfully.",
+            message="Item permanently removed from cart successfully.",
             status_code=status.HTTP_200_OK
         )
