@@ -5,3 +5,4 @@ from .auth_view import (
     LogoutAPIView, 
     ProfileAPIView
 )
+from .address_view import AddressViewSet

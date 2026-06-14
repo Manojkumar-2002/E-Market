@@ -1,14 +1,23 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import SimpleRouter
+
 from apps.users.views import (
     RegisterAPIView, 
     LoginAPIView, 
     CustomTokenRefreshAPIView, 
     LogoutAPIView,
-    ProfileAPIView
+    ProfileAPIView,
+    AddressViewSet
 )
 
-# The app_name sets a namespace so you can reverse look up these URLs (e.g., 'users:login')
 app_name = "users"
+
+
+# 1. Initialize the router and register the endpoint vector
+router = SimpleRouter()
+router.register(r"addresses", AddressViewSet, basename="address")
+
+
 
 urlpatterns = [
     # Core Authentication Routes
@@ -19,4 +28,5 @@ urlpatterns = [
     path("token/refresh/", CustomTokenRefreshAPIView.as_view(), name="token_refresh"),
     path("logout/", LogoutAPIView.as_view(), name="logout"),
     path("profile/", ProfileAPIView.as_view(), name="profile"),
+    path("", include(router.urls)),
 ]
