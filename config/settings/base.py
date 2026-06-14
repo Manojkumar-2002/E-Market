@@ -32,7 +32,7 @@ PROJECT_APPS = [
     "apps.users",
     "apps.products",
     "apps.carts",
-    # "apps.orders",
+    "apps.orders",
     # "apps.payments",
 ]
 

@@ -22,6 +22,25 @@ services:
     volumes:
       - redis_data:/data
 
+  # 👑 UPDATED HIGH-PERFORMANCE AMQP BROKER ENGINE
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: emarket_rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"     # Core AMQP worker wire protocol channel
+      - "15672:15672"   # Management Web Dashboard Console
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
   web:
     build: .
     # Runs the Django development server bound to 0.0.0.0 for external routing
@@ -39,7 +58,45 @@ services:
     depends_on:
       - db
       - redis
+      - rabbitmq
+
+  # 🚀 Dedicated Fast-Lane Worker: Processes ONLY checkout timeout rules
+  celery_worker_checkout:
+    build: .
+    command: celery -A config worker -Q checkout --loglevel=info --concurrency=2
+    restart: always
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+      # 👑 WAIT FOR HEALTHY: Blocks worker boot until RabbitMQ is fully initialized
+      rabbitmq:
+        condition: service_healthy
+
+  # 📉 Dedicated Heavy-Lifting Worker: Processes slow background jobs or crons
+  celery_worker_default:
+    build: .
+    command: celery -A config worker -Q celery --loglevel=info --concurrency=2
+    restart: always
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+      # 👑 WAIT FOR HEALTHY: Blocks worker boot until RabbitMQ is fully initialized
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   postgres_data:
   redis_data:
+  rabbitmq_data:
