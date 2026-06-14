@@ -33,7 +33,7 @@ PROJECT_APPS = [
     "apps.products",
     "apps.carts",
     "apps.orders",
-    # "apps.payments",
+    "apps.payments",
 ]
 
 INSTALLED_APPS = CORE_APPS + THIRD_PARTY_APPS + PROJECT_APPS

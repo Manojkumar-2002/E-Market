@@ -30,6 +30,22 @@ def get_celery_config(env):
         "CELERY_RESULT_EXPIRES": 86400, 
         "CELERY_TIMEZONE": env.str("TIME_ZONE", default="UTC"),
         "CELERY_ENABLE_UTC": True,
+        "CELERY_QUEUES": {
+            "checkout": {
+                "exchange": "checkout",
+                "routing_key": "checkout",
+                "queue_arguments": {
+                    # Any message that dies in 'checkout' goes to 'checkout.dlq'
+                    "x-dead-letter-exchange": "checkout.dlq",
+                    "x-dead-letter-routing-key": "checkout.dead",
+                }
+            },
+            # 💀 DEAD LETTER QUEUE — catches all exhausted/stuck tasks
+            "checkout.dlq": {
+                "exchange": "checkout.dlq",
+                "routing_key": "checkout.dead",
+            }
+        },
         "CELERY_TASK_ROUTES": {
             # Fast, high-priority e-commerce tasks go to the 'checkout' highway
             "apps.orders.tasks.inspect_order_stock_ttl": {
