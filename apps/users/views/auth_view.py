@@ -10,6 +10,7 @@ from apps.core.utils.response_handler import ResponseHandler
 from apps.core.utils.serializer_handler import SerializerErrorHandler  
 from apps.users.serializers import RegisterSerializer, LoginSerializer, UserSerializer, LogoutSerializer
 
+from apps.carts.utils.guest_to_user_cart import merge_guest_cart_to_user
 
 from drf_spectacular.utils import extend_schema
 
@@ -50,6 +51,7 @@ class LoginAPIView(APIView):
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
+        session_key = request.session.session_key
         serializer = self.serializer_class(data=request.data, context={'request': request})
         
         if not serializer.is_valid():
@@ -61,6 +63,8 @@ class LoginAPIView(APIView):
             
         user = serializer.validated_data['user']
         refresh = RefreshToken.for_user(user)
+        if session_key:
+            merge_guest_cart_to_user(session_key, user)
         
         response_data = {
             "user": UserSerializer(user).data,
