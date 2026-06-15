@@ -10,9 +10,18 @@ ENV PYTHONUNBUFFERED=1
 # Set the working directory inside the container
 WORKDIR /app
 
-# Install minimal system dependencies required at runtime
+# Install system dependencies (curl + WeasyPrint graphical libraries + fonts)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    libpango-1.0-0 \
+    libpangoft2-1.0-0 \
+    libharfbuzz-subset0 \
+    libjpeg-dev \
+    libopenjp2-7-dev \
+    libffi-dev \
+    shared-mime-info \
+    fonts-liberation \
+    fonts-noto \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -20,6 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements/development.txt /app/requirements/development.txt
 
 # Install your exact Python dependencies
+# MAKE SURE 'weasyprint' IS LISTED IN THIS TXT FILE!
 RUN pip install --no-cache-dir -r requirements/development.txt
 
 # Copy the rest of your Django project code into the container
