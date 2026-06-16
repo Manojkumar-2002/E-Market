@@ -11,6 +11,8 @@ from apps.payments.serializers import PaymentInitResponseSerializer
 from apps.core.utils.payment_utils import client as razorpay_client
 from apps.core.utils.response_handler import ResponseHandler
 
+from apps.orders.tasks import generate_and_send_invoice_task
+
 
 class InitializePaymentView(APIView):
     """
@@ -158,6 +160,11 @@ class RazorpayWebhookView(APIView):
 
                         order.status = OrderStatus.COMPLETED
                         order.save()
+
+                        
+                        transaction.on_commit(
+                            lambda: generate_and_send_invoice_task.delay(order.id)
+                        )
 
                 except Transaction.DoesNotExist:
                     pass

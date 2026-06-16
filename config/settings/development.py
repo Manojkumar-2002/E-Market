@@ -6,6 +6,7 @@ from .components.rest_framework import get_jwt_auth_config
 from .components.cache import get_cache_config
 from .components.celery_config import get_celery_config
 from .components.payments import get_payment_config
+from .components.email import get_email_config
 
 env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
@@ -17,6 +18,7 @@ auth_component = get_jwt_auth_config(env)
 cache_component = get_cache_config(env)
 celery_component = get_celery_config(env)
 payment_component = get_payment_config(env)
+email_component = get_email_config(env)
 
 
 # Core Mappings
@@ -53,3 +55,14 @@ CELERY_QUEUES = celery_component["CELERY_QUEUES"]
 CELERY_TASK_ROUTES = celery_component["CELERY_TASK_ROUTES"]
 
 PAYMENTS = payment_component["PAYMENTS"]
+
+
+EMAIL_BACKEND = email_component["EMAIL_BACKEND"]
+EMAIL_HOST = email_component["EMAIL_HOST"]
+EMAIL_PORT = email_component["EMAIL_PORT"]
+EMAIL_USE_TLS = email_component["EMAIL_USE_TLS"]
+EMAIL_USE_SSL = email_component["EMAIL_USE_SSL"]
+EMAIL_HOST_USER = email_component["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = email_component["EMAIL_HOST_PASSWORD"]
+EMAIL_TIMEOUT = email_component["EMAIL_TIMEOUT"]
+EMAIL_SENDER_DEFAULT = email_component["EMAIL_SENDER_DEFAULT"]

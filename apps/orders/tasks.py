@@ -2,6 +2,13 @@ from celery import shared_task
 from django.db import transaction, OperationalError  # 👑 Import Django database exceptions
 from django.db.models import F
 import logging
+from django.conf import settings
+
+from apps.orders.models import Order
+from apps.core.services.email import send_email 
+from apps.core.utils.pdf_generator import generate_pdf_from_template
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +22,7 @@ logger = logging.getLogger(__name__)
     default_retry_delay=10  # Initial wait duration in seconds
 )
 def inspect_order_stock_ttl(self, order_id):  # 👑 Added 'self' as the first parameter
+
     from apps.orders.models import Order, OrderStatus
     from apps.products.models import ProductVariant, InventoryLog
 
@@ -74,3 +82,78 @@ def inspect_order_stock_ttl(self, order_id):  # 👑 Added 'self' as the first p
         
         else:
             logger.info(f"ℹ️ Idempotency Guard hit: Order {order_id} is in status '{order.status}'.")
+
+
+
+import logging
+from celery import shared_task
+from django.conf import settings
+from apps.orders.models import Order
+# ... (your other imports)
+
+logger = logging.getLogger(__name__)
+
+@shared_task(
+    bind=True, 
+    autoretry_for=(Exception,),  
+    max_retries=3,               
+    retry_backoff=60,            
+    retry_backoff_max=600,       
+    retry_jitter=True            
+)
+def generate_and_send_invoice_task(self, order_id):
+    """
+    Background task to generate an invoice PDF and send it to the customer.
+    """
+    try:
+        # Fetch the order inside a try block
+        order = Order.objects.select_related('user').prefetch_related(
+            'items', 
+            'transactions'
+        ).get(id=order_id)
+        
+    except Order.DoesNotExist:
+        # Catch it and exit cleanly so Celery DOES NOT retry this specific error
+        logger.error(f"[INVOICE] Fatal: Order {order_id} not found. Aborting task.")
+        return False
+
+    # Proceed with invoice generation if order exists...
+    successful_txn = order.transactions.filter(status="SUCCESS").first()
+
+    context = {
+        "order": order,
+        "items": order.items.all(),
+        "user": order.user,
+        "shipping_address": order.shipping_address_snapshot,
+        "transaction": successful_txn,
+        "company_name": getattr(settings, "COMPANY_NAME", "E-Cart"),
+    }
+
+    # ... (Rest of your PDF generation and email dispatch code remains exactly the same)
+    pdf_binary_data = generate_pdf_from_template(
+        template_name="invoice/invoice.html", 
+        context=context
+    )
+
+    attachments = [
+        {
+            "filename": f"Invoice_{order.id}.pdf",
+            "data": pdf_binary_data,
+            "mime": "application/pdf"
+        }
+    ]
+
+    email_sent = send_email(
+        subject=f"Order Confirmed! Your Invoice for Order #{order.id}",
+        to=order.user.email,
+        context=context,
+        template_html="emails/invoice_email.html", 
+        attachments=attachments,  
+        fail_silently=False
+    )
+
+    if email_sent:
+        logger.info(f"[INVOICE] Successfully sent invoice for Order {order_id}")
+        return True
+    else:
+        raise Exception("send_email returned False")
